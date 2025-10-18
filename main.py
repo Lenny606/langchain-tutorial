@@ -1,28 +1,26 @@
-from langchain_openai import OpenAI  # or open-sources on huggingface
-from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnableSequence
-from dotenv import load_dotenv
+import langchain_helper as lch
+import streamlit as st
 
-load_dotenv()
+st.title("LangChain Tutorial")
 
+person_type = st.sidebar.selectbox(
+    "human type", ("happy person", "sad person")
+)
 
-def generate_name(person_type, hair_color, gender):
-    template = PromptTemplate(
-        input_variables=['person_type', "hair_color", "gender"],
-        template="generate a name for a {hair_color} {gender} person of {person_type} five examples"
+hair_color = st.sidebar.selectbox(
+    "color", ("red", "yellow")
+)
+if hair_color:
+    gender = st.sidebar.selectbox(
+        "gender", ("male", "female")
     )
-    llm = OpenAI(temperature=0.5)  # config
 
-    chain = RunnableSequence([template, llm])
+if gender == 'male':
+    text_area = st.sidebar.text_area(
+        label="Comment",
+        max_chars=10
+    )
 
-    # name = llm.invoke("generate a name for a person, five exmaples")  # prompt
-    response = chain.invoke(
-        {'person_type': person_type,
-         "hair_color": hair_color,
-         "gender": gender,
-         })
-    return response
-
-
-if __name__ == "__main__":
-    print(generate_name("happy person", "red hair", "female"))
+if st.button("Generate name"):
+    response = st.write(lch.generate_name(person_type, hair_color, gender))
+    st.text(response)
